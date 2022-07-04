@@ -102,7 +102,7 @@ class Discriminator(nn.Module):
             #nn.Conv2d(3, 64, 4, 2, 1, bias=False),
             #nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf) x 32 x 32
-            nn.Conv2d(64, 64 * 2, 4, 2, 1, bias=False),
+            nn.Conv2d(3, 64 * 2, 4, 2, 1, bias=False),
             nn.BatchNorm2d(64 * 2),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*2) x 16 x 16
@@ -114,9 +114,9 @@ class Discriminator(nn.Module):
             nn.BatchNorm2d(64 * 8),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*8) x 4 x 4
-            nn.Conv2d(64 * 8, 1, 4, 1, 0, bias=False),
+            nn.Conv2d(64 * 8, 2, 4, 1, 0, bias=False),
             nn.Sigmoid()
         )
 
-    def forward(self, input):
-        return self.main(input).view(-1, 1).squeeze(1)
+    def forward(self, inp):
+        return self.main(inp).squeeze()

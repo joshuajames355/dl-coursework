@@ -6,15 +6,17 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 import matplotlib.pyplot as plt
-from models import Generator
+from models import VAE
 
-fileName = "dcgan_checkpoint.chkpt"
-batch_size  = 64
+params = torch.load('save.chkpt')
+batch_size  = 4
+n_channels  = 3
+latent_size = 256
 
+A = VAE(n_channels, latent_size)
 
-params = torch.load(fileName)
-G = Generator()
-G.load_state_dict(params["G"])
+A.load_state_dict(params['A'])
+epoch = params['epoch']
 
 # helper function to make getting another batch of data easier
 def cycle(iterable):
@@ -40,14 +42,24 @@ class_names = ['airplane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse',
 
 train_iterator = iter(cycle(train_loader))
 
+# plot some examples
 x,t = next(train_iterator)
+print(t)
 
-noise = torch.randn(batch_size, 128, 1, 1)
-y = G(noise)
+plt.rcParams['figure.dpi'] = 100
+plt.grid(False)
+plt.imshow(torchvision.utils.make_grid(x[:8]).cpu().data.permute(0,2,1).contiguous().permute(2,1,0), cmap=plt.cm.binary)
+plt.show()
+plt.pause(0.0001)
 
-for i in range(batch_size):
-    torchvision.utils.save_image(y[i],"images/"+str(i)+ ".png")
+y, mu, logvar = A(x, device="cpu")
+y = A.decode(mu)
 
-torchvision.utils.save_image(torchvision.utils.make_grid(y),"images/grid.png")
+plt.rcParams['figure.dpi'] = 100
+plt.grid(False)
+plt.imshow(torchvision.utils.make_grid(y[:8]).cpu().data.permute(0,2,1).contiguous().permute(2,1,0), cmap=plt.cm.binary)
+plt.show()
+plt.pause(0.0001)
 
-#A simple script to sample a batch of images from the generator.
+
+
